@@ -1,8 +1,8 @@
 package com.cypher.netty.im.client;
 
-import com.cypher.netty.im.inter.ILifeCycle;
-import com.cypher.netty.im.inter.ConnectVisitor;
 import com.cypher.netty.im.common.IMException;
+import com.cypher.netty.im.inter.ConnectVisitor;
+import com.cypher.netty.im.inter.ILifeCycle;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -13,6 +13,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.net.SocketAddress;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Viber
@@ -77,8 +78,9 @@ public class IMClient implements ILifeCycle {
         public void operationComplete(ChannelFuture channelFuture) throws Exception {
             if (!channelFuture.isSuccess()) {
                 //说明需要重连
-                channelFuture.cause().printStackTrace();
+//                channelFuture.cause().printStackTrace();
                 System.out.println("connect failure...");
+                channelFuture.channel().eventLoop().schedule(IMClient.this::connect, 5, TimeUnit.SECONDS);
             } else {
                 IMClient.this.channel = channelFuture.channel();
                 countDownLatch.countDown();
